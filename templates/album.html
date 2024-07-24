@@ -1,0 +1,108 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <script></script>
+    <title>
+        {{ album.name }}
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header / Navbar  -->
+    <header class="w-full h-fit p-4 grid grid-cols-12">
+        <!-- Main Title  -->
+        <div class="col-span-8">
+            <h1 class="text-3xl font-semibold w-full capitalize">
+                {{ album.name }}
+            </h1>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-end gap-x-4">
+            <!-- Return to Homepage  -->
+            <a href="{{ url_for('category', category=type) }}" class="border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Return to Category
+            </a>
+        </div>
+    </header>
+
+    <!-- Album Member  -->
+    <section class="w-full h-fit py-8 grid grid-cols-8">
+
+        {% for img in album.members %}
+            <div class="flex flex-col w-full h-fit cursor-pointer" onclick="openToSlide({{ loop.index0 }})">
+                <div class="w-full aspect-[1/1] overflow-hidden">
+                    <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="" class="w-full h-full object-cover">
+                </div>
+            </div>
+        {% endfor %}
+        
+    </section>
+
+    <!-- Album Swiper  -->
+    <section id="image-swiper" class="fixed hidden top-0 left w-full h-full bg-black/[.95]">
+
+        <div class="fixed z-10 w-full top-0 left-0 flex items-center justify-end p-6 gap-x-4">
+            <!-- Return to Homepage  -->
+            <div onclick="generate_instagram_post()" class="cursor-pointer text-white border-2 px-4 py-2 rounded-lg border-white border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="instagram" class="text-white"></i>
+                Post to Instagram
+            </div>
+
+            <div onclick="closeSlider()" class="cursor-pointer text-white border-2 px-4 py-2 rounded-lg border-white border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="x" class="text-white"></i>
+                Close
+            </div>
+        </div>
+
+        <div class="swiper-container w-full h-full">
+            <div class="swiper-wrapper w-full h-full">
+                {% for img in album.members %}
+                    <div class="swiper-slide w-full h-full flex justify-center items-center">
+                        <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="{{ img[4] }}" class="w-auto h-4/5">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </section>
+
+    {% include 'components/instagram-popup.html' %}
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <script>
+        feather.replace();
+    </script>
+
+    <script>
+        var swiper = new Swiper('.swiper-container', {
+            loop: true,
+            draggable: true,
+        });
+    </script>
+    
+    <script>
+        function openToSlide(index) {
+            $('#image-swiper').removeClass('hidden').addClass('block');
+            swiper.slideTo(index, 500);
+        }
+
+        function closeSlider() {
+            $('#image-swiper').removeClass('block').addClass('hidden');
+        }
+    </script>
+
+    
+</body>
+</html>

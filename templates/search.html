@@ -1,0 +1,169 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <script></script>
+    <title>Intelligent Photo Album</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header / Navbar  -->
+    <header class="w-full h-fit p-4 grid grid-cols-12">
+        <!-- Main Title  -->
+        <div class="col-span-4">
+            <h1 class="text-3xl font-semibold w-full">
+                Search Image
+            </h1>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-center">
+            <form action="{{ url_for('search') }}" method="POST" class="w-full">
+                <input value="{{query}}" id="search" name="search" class="w-full p-2 rounded-lg border-gray-200 border-2" type="text" placeholder="Enter keywords to search image">
+            </form>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-end gap-x-4">
+            <!-- Return to Homepage  -->
+            <a href="/" class="border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Return to Home
+            </a>
+        </div>
+    </header>
+
+
+    {% if results.rObject %}
+        <!-- Related Object  -->
+        <section class="w-full h-fit px-4 py-8 grid grid-cols-8">
+
+            <!-- Categorize Title  -->
+            <div class="col-span-8 mb-4">
+                <h2 class="text-xl">
+                    By Object
+                </h2>
+            </div>
+
+            {% for img in results.rObject %}
+                <div class="flex flex-col w-full h-fit cursor-pointer" onclick="openToSlide({{ loop.index0 }})">
+                    <div class="w-full aspect-[1/1] overflow-hidden">
+                        <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="{{ img[4] }}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+           
+    {% endif %}
+
+    {% if results.rType %}
+        <!-- Related Type  -->
+        <section class="w-full h-fit px-4 py-8 grid grid-cols-8">
+
+            <!-- Categorize Title  -->
+            <div class="col-span-8 mb-4">
+                <h2 class="text-xl">
+                    By Type
+                </h2>
+            </div>
+
+            {% for img in results.rType %}
+                <div class="flex flex-col w-full h-fit cursor-pointer" onclick="openToSlide({{ results.rObject|length + loop.index0 }})">
+                    <div class="w-full aspect-[1/1] overflow-hidden">
+                        <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="{{ img[4] }}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+    
+
+    {% if results.rScan %}
+        <!-- Related Text  -->
+        <section class="w-full h-fit px-4 py-8 grid grid-cols-8">
+
+            <!-- Categorize Title  -->
+            <div class="col-span-8">
+                <h2 class="text-xl">
+                    Related OCR Scan
+                </h2>
+            </div>
+
+            {% for img in results.rScan %}
+                <div class="flex flex-col w-full h-fit cursor-pointer" onclick="openToSlide({{ results.rType|length + loop.index0 }})">
+                    <div class="w-full aspect-[1/1] overflow-hidden">
+                        <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="{{ img[4] }}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            {% endfor %}
+
+        </section>
+            
+    {% endif %}
+
+    <!-- Album Swiper  -->
+    <section id="image-swiper" class="fixed hidden top-0 left w-full h-full bg-black/[.95]">
+
+        <div class="fixed z-10 w-full top-0 left-0 flex items-center justify-end p-6 gap-x-4">
+            <!-- Return to Homepage  -->
+            <div onclick="generate_instagram_post()" class="cursor-pointer text-white border-2 px-4 py-2 rounded-lg border-white border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="instagram" class="text-white"></i>
+                Post to Instagram
+            </div>
+
+            <div onclick="closeSlider()" class="cursor-pointer text-white border-2 px-4 py-2 rounded-lg border-white border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="x" class="text-white"></i>
+                Close
+            </div>
+        </div>
+
+        <div class="swiper-container w-full h-full">
+            <div class="swiper-wrapper w-full h-full">
+                
+                {% for related in results.values() %}
+                    {% for img in related %}
+                        <div class="swiper-slide w-full h-full flex justify-center items-center">
+                            <img src="{{ url_for('get_image', image_path = img[1]) }}" alt="{{ img[4] }}" class="w-auto h-full">
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+        
+    </section>
+
+    {% include 'components/instagram-popup.html' %}
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <script>
+        feather.replace();
+    </script>
+
+    <script>
+        var swiper = new Swiper('.swiper-container', {
+            loop: true,
+            draggable: true,
+        });
+    </script>
+    
+    <script>
+        function openToSlide(index) {
+            $('#image-swiper').removeClass('hidden').addClass('block');
+            swiper.slideTo(index, 500);
+        }
+
+        function closeSlider() {
+            $('#image-swiper').removeClass('block').addClass('hidden');
+        }
+    </script>
+
+</body>
+</html>

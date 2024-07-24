@@ -1,0 +1,20 @@
+{
+    "init": true,
+    "inference": {
+        "method": {
+            "server": "local",
+            "key": null,
+            "url": null
+        },
+        "option": {
+            "object_detection": true,
+            "scene_classification": true,
+            "ocr": true,
+            "caption_generation": true
+        }
+    },
+    "folders": [
+        "C:\\Users\\daram\\Pictures\\Screenshots",
+        "C:\\Users\\daram\\Pictures\\whatsapp"
+    ]
+}

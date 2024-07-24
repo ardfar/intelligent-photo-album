@@ -1,0 +1,149 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script></script>
+    <title>Intelligent Photo Album</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header / Navbar  -->
+    <header class="w-full h-fit p-4 grid grid-cols-12">
+        <!-- Main Title  -->
+        <div class="col-span-4">
+            <h1 class="text-3xl font-semibold w-full">
+                Intelligent Photo Album
+            </h1>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-center">
+            <form action="{{ url_for('search') }}" method="POST" class="w-full">
+                <input id="search" name="search" class="w-full text-center p-2 rounded-lg border-gray-200 border-2" type="text" placeholder="Enter keywords to search image">
+            </form>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-end gap-x-4">
+            <!-- Configuration Button  -->
+            <a href="/config" class="border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="settings" class="text-black"></i>
+                Configuration
+            </a>
+        </div>
+    </header>
+
+    <!-- By Type  -->
+    {% if (types|length) > 1 %}
+    <section class="w-full h-fit px-4 py-8 grid grid-cols-8 gap-4">
+
+        <!-- Categorize Title  -->
+        <div class="col-span-2">
+            <h2 class="text-xl">
+                Classification by Type
+            </h2>
+        </div>
+
+        <!-- Show All Button  -->
+        <div class="col-span-6 flex items-center justify-end gap-x-4">
+            <a href="{{ url_for('category', category='types') }}" class="border-2 px-4 py-1 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Show All
+            </a>
+        </div>
+
+        {% for type in types %}
+            <a href="{{ url_for('album', type = type.type, name = type.name) }}" class="flex flex-col w-full h-fit">
+                <div class="w-full aspect-[1/1] overflow-hidden border-gray-300 border-4 rounded-[30px]">
+                    <img src="{{ url_for('get_image', image_path = type.get_thumbnail()) }}" alt="" class="rounded-[27px] w-full h-full object-cover">
+                </div>
+
+                <h3 class="text-center text-lg">
+                    {{ type.get_name() }}
+                </h3>
+            </a>
+        {% endfor %}
+
+    </section>
+    {% endif %}
+
+    <!-- By Object  -->
+    {% if (objects|length) > 1 %}
+    <section class="w-full h-fit px-4 py-8 grid grid-cols-8 gap-6">
+
+        <!-- Categorize Title  -->
+        <div class="col-span-2">
+            <h2 class="text-xl">
+                Classification by Object
+            </h2>
+        </div>
+
+        <!-- Show All Button  --> 
+        <div class="col-span-6 flex items-center justify-end gap-x-4">
+            <a href="{{ url_for('category', category='object') }}" class="border-2 px-4 py-1 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Show All
+            </a>
+        </div>
+
+        {% for object in objects %}
+            <a href="{{ url_for('album', type = object.type, name = object.name) }}" class="flex flex-col w-full h-fit">
+                <div class="w-full aspect-[1/1] overflow-hidden border-gray-300 border-4 rounded-[30px]">
+                    <img src="{{ url_for('get_image', image_path = object.get_thumbnail()) }}" alt="" class="rounded-[27px] w-full h-full object-cover">
+                </div>
+
+                <h3 class="text-center text-lg">
+                    {{ object.get_name() }}
+                </h3>
+            </a>
+        {% endfor %}
+
+    </section>
+    {% endif %}
+
+
+    <!-- By Folder  -->
+    {% if (folders|length) > 1 %}
+    <section class="w-full h-fit px-4 py-8 grid grid-cols-8 gap-6">
+
+        <!-- Categorize Title  -->
+        <div class="col-span-2">
+            <h2 class="text-xl">
+                Classification by Location
+            </h2>
+        </div>
+
+        <!-- Show All Button  --> 
+        <div class="col-span-6 flex items-center justify-end gap-x-4">
+            <a href="{{ url_for('category', category='folder') }}" class="border-2 px-4 py-1 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Show All
+            </a>
+        </div>
+
+        {% for folder in folders %}
+            <a href="{{ url_for('album', type = folder.type, name = folder.name) }}" class="flex flex-col w-full h-fit">
+                <div class="w-full aspect-[1/1] overflow-hidden border-gray-300 border-4 rounded-[30px]">
+                    <img src="{{ url_for('get_image', image_path = folder.get_thumbnail()) }}" alt="" class="rounded-[27px] w-full h-full object-cover">
+                </div>
+
+                <h3 class="text-center text-lg">
+                    {{ folder.get_name() }}
+                </h3>
+            </a>
+        {% endfor %}
+
+    </section>
+    {% endif %}
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

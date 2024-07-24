@@ -1,0 +1,100 @@
+<!-- Instagram Post Popup  -->
+<section id="igPopUp" class="fixed hidden items-center justify-center top-0 left w-full h-full backdrop-blur-md bg-white/30">
+
+    <div id="result" class="hidden w-2/5 h-fit bg-black text-white p-5 rounded-lg">
+
+        <div class="w-full h-fit grid grid-cols-12 gap-x-4">
+            <div class="col-span-6">
+                <img src="/" alt="" class="w-full h-full object-scale-down">
+            </div>
+
+            <div class="col-span-6 w-full grid grid-rows-12 grid-cols-12 items-center justify-center py-6 gap-y-8">
+                <div class="w-full h-full row-span-6 col-span-12">
+                    <h3>
+                        Caption
+                    </h3>
+                    <textarea name="caption" id="caption" class="text-white bg-black w-full h-full border-2 border-white border-solid rounded-lg p-4" placeholder="Waiting caption ..."></textarea>
+                </div>
+
+                <div class="w-full h-full row-span-6 col-span-12">
+                    <h3>
+                        Hashtags
+                    </h3>
+                    <textarea name="hashtags" id="hashtags" class="text-white bg-black w-full h-full border-2 border-white border-solid rounded-lg p-4" placeholder="Hashtags should be here"></textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <div onclick="closeIGPop()" class="cursor-pointer border-2 px-4 py-2 my-4 rounded-lg border-white border-solid flex items-center justify-center gap-x-2">
+            <i data-feather="x" class=""></i>
+            Close
+        </div>
+    </div>
+
+    <div id="waiting" class="flex items-center justify-center w-2/5 h-fit bg-black text-white p-5 rounded-lg">
+
+        <div class="grid grid-cols-12 gap-y-2">
+            <h2 class="text-center col-span-12">
+                Waiting for Caption and Hashtags
+            </h2>
+            <div class="col-span-12 w-full flex justify-center">
+                <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
+            </div>
+        </div>
+        
+    </div>
+    
+</section>
+
+<script>
+    function generate_instagram_post(){
+
+        $('#igPopUp').removeClass('hidden').addClass('flex');
+        $('#waiting').removeClass('hidden').addClass('flex');
+
+
+        var currentSlideIndex = swiper.activeIndex;
+        var currentSlide = $('.swiper-slide').eq(currentSlideIndex);
+        var imageSrc = currentSlide.find('img').attr('src').replace("/get_image/", "");
+        var keyword = currentSlide.find('img').attr('alt');
+        
+        $.ajax({
+            url: "/get_caption/" + imageSrc,
+            method: "GET",
+            success: function(response) {
+                var caption = response;
+                
+                $.ajax({
+                    url: "/get_hashtags/" + encodeURIComponent(keyword) + "/" + encodeURIComponent(caption),
+                    method: "GET",
+                    success: function(response) {
+                        var hashtags = response.join(' ');
+                        hashtags = hashtags.replace(/,/g, ' ')
+                        
+                        $('#waiting').removeClass('flex').addClass('hidden');
+                        $('#result').removeClass('hidden').addClass('block');
+                        $('#result').find('img').attr('src', currentSlide.find('img').attr('src'));
+                        $('#caption').val(caption);
+                        $('#hashtags').val(hashtags);
+                    },
+                    error: function(error) {
+                        console.log("Error retrieving hashtags:", error);
+                    }
+                });
+            },
+            error: function(error) {
+                console.log("Error retrieving caption:", error);
+            }
+        });
+
+        
+        
+    }
+
+    function closeIGPop() {
+        $('#igPopUp').removeClass('flex').addClass('hidden');
+        $('#result').removeClass('block').addClass('hidden');
+        $('#waiting').removeClass('hidden').addClass('flex');
+    }
+</script>

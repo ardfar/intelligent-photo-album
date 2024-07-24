@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script></script>
+    <title>Category Name</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header / Navbar  -->
+    <header class="w-full h-fit p-4 grid grid-cols-12">
+        <!-- Main Title  -->
+        <div class="col-span-8">
+            <h1 class="text-3xl font-semibold w-full capitalize">
+                Classification by {{ category }}
+            </h1>
+        </div>
+
+        <div class="col-span-4 flex items-center justify-end gap-x-4">
+            <!-- Return to Homepage  -->
+            <a href="/" class="border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-black"></i>
+                Return to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Category Member  -->
+    <section class="w-full h-fit px-4 py-8 grid grid-cols-8 gap-6">
+
+        {% for album in albums %}
+            <a href="{{ url_for('album', type = album.type, name = album.name) }}" class="flex flex-col w-full h-fit">
+                <div class="w-full aspect-[1/1] overflow-hidden border-gray-300 border-4 rounded-[30px]">
+                    <img src="{{ url_for('get_image', image_path = album.get_thumbnail()) }}" alt="" class="rounded-[27px] w-full h-full object-cover">
+                </div>
+
+                <h3 class="text-center text-lg">
+                    {{ album.get_name() }}
+                </h3>
+            </a>
+        {% endfor %}
+
+    </section>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

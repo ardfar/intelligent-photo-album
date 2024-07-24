@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script></script>
+    <title>Configuration - IPA</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <!-- REindex Popup  -->
+    <section id="rePopUp" class="fixed hidden items-center justify-center top-0 left w-full h-full backdrop-blur-md bg-white/30">
+
+        <div id="waiting" class="flex items-center justify-center w-1/5 h-fit bg-black text-white p-5 rounded-lg">
+
+            <div class="grid grid-cols-12 gap-y-2">
+                <h2 class="text-center text-xl pb-4 font-semibold col-span-12">
+                    Indexing Photos
+                </h2>
+                <div class="col-span-12 w-full flex justify-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div id="result" class="hidden items-center justify-center w-1/5 h-fit bg-black text-white p-5 rounded-lg">
+
+            <div class="grid grid-cols-12 gap-y-2">
+                <h2 class="text-center text-xl pb-4 font-semibold col-span-12">
+                    Successfully Indexed
+                </h2>
+                <div class="col-span-12 flex items-center flex-col">
+                    <div class="flex gap-x-6">
+                        <h3>
+                            Total Images
+                        </h3>
+                        <p id="total-image">
+                            0
+                        </p>
+                    </div>
+
+                    <div class="flex gap-x-6">
+                        <h3>
+                            Elapsed Time
+                        </h3>
+                        <p id="elapsed-time">
+                            0s
+                        </p>
+                    </div>
+
+                </div>
+
+                <button onclick="closePopup()" class="col-span-12 mt-4 w-full px-4 py-1 rounded-lg border-white border-2 text-white flex items-center justify-center gap-x-2">
+                    <i data-feather="x" class="text-white"></i>
+                    Close
+                </button>
+            </div>
+            
+        </div>
+        
+    </section>
+
+    <!-- Header / Navbar  -->
+    <header class="w-full h-fit p-4 grid grid-cols-12">
+        <div class="w-full col-span-4 flex items-center justify-start gap-x-4">
+
+            <!-- Reset Button -->
+            <a href="/reset-app" class="w-1/3 px-4 py-2 rounded-lg bg-red-600 text-white flex items-center justify-center gap-x-2">
+                <i data-feather="refresh-ccw" class="text-white"></i>
+                Reset Application
+            </a>
+
+            <!-- Update Index  -->
+            <button onclick="reindexPhotos()" class="w-1/3 px-4 py-2 rounded-lg bg-blue-500 text-white flex items-center justify-center gap-x-2">
+                <i data-feather="search" class="text-white"></i>
+                Update Photo Index
+            </button>
+
+            <script>
+                function reindexPhotos() {
+                    $("#rePopUp").removeClass('hidden').addClass('flex');
+                    $.ajax({
+                        url: '/re-index',
+                        type: 'GET',
+                        success: function(response) {
+                            $("#waiting").removeClass('flex').addClass('hidden');
+                            $("#result").removeClass('hidden').addClass('flex');
+
+                            $("#total-image").html(response.length);
+                            $("#elapsed-time").html(Math.ceil(response.time) + 's');
+
+                        },
+                        error: function(xhr, status, error) {
+                            
+                        }
+                    });
+                }
+
+                function closePopup(){
+                    $("#rePopUp").removeClass('flex').addClass('hidden');
+                    $("#waiting").removeClass('hidden').addClass('flex');
+                    $("#result").removeClass('flex').addClass('hidden');
+                }
+            </script>
+        </div>
+
+        <!-- Main Title  -->
+        <div class="col-span-4 flex justify-center">
+            <h1 class="text-4xl font-semibold">
+                Configuration
+            </h1>
+        </div>
+
+        <!-- Return to Homepage  -->
+        <div class="col-span-4 flex items-center justify-end gap-x-4">
+            <a href="/" class="px-4 py-2 rounded-lg bg-black text-white flex items-center justify-center gap-x-2">
+                <i data-feather="external-link" class="text-white"></i>
+                Return to Home
+            </a>
+        </div>
+    </header>
+
+    <!-- Folder Configuration  -->
+    <section class="w-full h-fit p-8 grid grid-cols-12">
+
+        <!-- Title  -->
+        <div class="w-full h-full col-span-4 flex items-center justify-center gap-x-4">
+            <h2 class="text-xl font-semibold">
+                Included Folder Configuration
+            </h2>
+        </div>
+
+        <div class="col-span-8 w-full grid grid-cols-8 gap-6">
+    
+            <!-- Included Folders List -->
+            <div class="w-full col-span-8 flex flex-col items-center justify-center gap-y-4">
+                <!-- List Header  -->
+                <div class="w-full grid grid-cols-12 gap-x-4">
+                    <div class="col-span-6 font-semibold">
+                        Folder Path
+                    </div>
+                    <div class="col-span-3 font-semibold text-center">
+                        N Images
+                    </div>
+                    <div class="col-span-3 font-semibold text-right">
+                        Action
+                    </div>
+                </div>
+    
+                <!-- List Item  -->
+                {% if folders %}
+                    {% for folder in folders %}
+                        <div class="w-full grid grid-cols-12 gap-x-4">
+                            <div class="col-span-6">
+                                {{ folder.path }}
+                            </div>
+                            <div class="col-span-3 text-center">
+                                {{ folder.num_images }}
+                            </div>
+                            <div class="col-span-3 flex items-center justify-end gap-x-2">
+                                <form action="/remove-folder" method="POST" onsubmit="return confirm('are you sure to remove the folder')">
+                                    <input hidden type="text" id="folder_input" name="folder_input" class="w-full border-2 border-gray-300 rounded-lg p-2 mb-4" value="{{ folder.path }}">
+                                    <button class="px-4 py-2 rounded-lg bg-red-600 text-white flex items-center justify-center gap-x-2">
+                                        <i data-feather="trash" class="text-white"></i>
+                                        Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No folders found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Include Folder Path  -->
+            <div class="w-full col-span-8 flex items-center justify-end gap-x-4">
+                <button onclick="$('#include_path_modal').removeClass('hidden').addClass('flex')" class="w-full px-4 py-2 rounded-lg bg-gray-500 text-white flex items-center justify-center gap-x-2">
+                    <i data-feather="folder-plus" class="text-white"></i>
+                    Add New Folder
+                </button>
+            </div>
+        </div>
+
+        
+
+    </section>
+
+    <form action="/update-configuration" method="POST" id="configuration_form" class="w-full h-fit">
+        <!-- Indexing Configuration  -->
+        <section class="w-full h-fit p-8 grid grid-cols-12 gap-6">
+
+            <!-- Categorize Title  -->
+            <div class="w-full col-span-4 flex items-center justify-center gap-x-4">
+                <h2 class="text-xl font-semibold">
+                    Indexing Configuration
+                </h2>
+            </div>
+
+            <div class="col-span-8 w-full h-fit grid grid-cols-12 gap-4">
+
+                <div onclick="toggleIndexing(event, 'obj_det')" class="col-span-3 w-full cursor-pointer {{ 'bg-green-600' if infer_config['option']['object_detection'] else 'bg-red-600' }} rounded-lg flex gap-4 items-center justify-center text-white font-bold p-4">
+                    <i id="f-check" data-feather="check-circle" class="text-white {{ 'block' if infer_config['option']['object_detection'] else 'hidden' }}"></i>
+                    <i id="f-x" data-feather="x-circle" class="text-white {{ 'block' if infer_config['option']['object_detection'] == False else 'hidden' }}"></i>
+                    <p class="bg-transparent">Object Detection</p>
+                    <input type="text" id="obj_det" name="obj_det" value="{{ infer_config["option"]["object_detection"] }}" hidden>
+                </div>
+
+                <div onclick="toggleIndexing(event, 'scn_cls')" class="col-span-3 w-full cursor-pointer {{ 'bg-green-600' if infer_config['option']['scene_classification'] else 'bg-red-600' }} rounded-lg flex gap-4 items-center justify-center text-white font-bold p-4">
+                    <i id="f-check" data-feather="check-circle" class="text-white {{ 'block' if infer_config['option']['scene_classification'] else 'hidden' }}"></i>
+                    <i id="f-x" data-feather="x-circle" class="text-white {{ 'block' if infer_config['option']['scene_classification'] == False else 'hidden' }}"></i>
+                    <p class="bg-transparent">Scene Classification</p>
+                    <input type="text" id="scn_cls" name="scn_cls" value="{{ infer_config["option"]["scene_classification"] }}" hidden>
+                </div>
+
+                <div onclick="toggleIndexing(event, 'ocr_scn')" class="col-span-3 w-full cursor-pointer {{ 'bg-green-600' if infer_config['option']['ocr'] else 'bg-red-600' }} rounded-lg flex gap-4 items-center justify-center text-white font-bold p-4">
+                    <i id="f-check" data-feather="check-circle" class="text-white {{ 'block' if infer_config['option']['ocr'] else 'hidden' }}"></i>
+                    <i id="f-x" data-feather="x-circle" class="text-white {{ 'block' if infer_config['option']['ocr'] == False else 'hidden' }}"></i>
+                    <p  class="bg-transparent">OCR Scanning</p>
+                    <input type="text" id="ocr_scn" name="ocr_scn" value="{{ infer_config["option"]["ocr"] }}" hidden>
+                </div>
+
+                <div onclick="toggleIndexing(event, 'cap_gen')" class="col-span-3 w-full cursor-pointer {{ 'bg-green-600' if infer_config['option']['caption_generation'] else 'bg-red-600' }} rounded-lg flex gap-4 items-center justify-center text-white font-bold p-4">
+                    <i id="f-check" data-feather="check-circle" class="text-white {{ 'block' if infer_config['option']['caption_generation'] else 'hidden' }}"></i>
+                    <i id="f-x" data-feather="x-circle" class="text-white {{ 'block' if infer_config['option']['caption_generation'] == False else 'hidden' }}"></i>
+                    <p class="bg-transparent">Caption Generation</p>
+                    <input type="text" id="cap_gen" name="cap_gen" value="{{ infer_config["option"]["caption_generation"] }}" hidden>
+                </div>
+
+            </div>
+
+            <script>
+                function toggleIndexing(event, id_input) {
+                    var clickedElement = $(event.target);
+                    if (clickedElement.hasClass('bg-green-600')) {
+                        clickedElement.removeClass('bg-green-600').addClass('bg-red-600');
+                        clickedElement.find("#f-check").removeClass('block').addClass('hidden');
+                        clickedElement.find("#f-x").removeClass('hidden').addClass('block');
+                    } else {
+                        clickedElement.removeClass('bg-red-600').addClass('bg-green-600');
+                        clickedElement.find('#f-x').removeClass('block').addClass('hidden');
+                        clickedElement.find('#f-check').removeClass('hidden').addClass('block');
+                    }
+
+                    input_val = $('#' + id_input).val();
+
+                    if (input_val == 'True') {
+                        $('#' + id_input).val('False');
+                    } else {
+                        $('#' + id_input).val('True');
+                    }
+                }
+            </script>
+
+        </section>
+
+        <!-- Inference Power Configuration  -->
+        <section class="w-full h-fit p-8 grid grid-cols-12 gap-6">
+
+            <!-- Categorize Title  -->
+            <div class="w-full col-span-4 flex items-center justify-center gap-x-4">
+                <h2 class="text-xl font-semibold">
+                    Inference Power Configuration
+                </h2>
+            </div>
+
+            <div class="col-span-8 w-full h-fit grid grid-cols-12 gap-4">
+
+                <div class="col-span-6">
+                    <input id="server-url" name="server-url" type="url" class="w-full border-2 border-gray-300 rounded-lg p-2" placeholder="Enter the URL of the Inference Server">
+                </div>
+
+                <div class="col-span-6">
+                    <input id="server-key" name="server-key" type="password" class="w-full border-2 border-gray-300 rounded-lg p-2" placeholder="Enter the special key of Inference Server">
+                </div>
+
+                <div class="col-span-12">
+                    <p>
+                        <strong>Note:</strong> The Inference Server should be running on the specified URL and the key should be provided by the server admin.
+                        Leave it empty to use your local machine for inference.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Important Application Button  -->
+        <section class="w-full h-fit px-4 py-8 grid grid-cols-8 gap-6 place-items-center">
+
+            <div class="w-full col-span-8 flex items-center justify-end gap-x-4">
+                <!-- Include Folder Path  -->
+                <button type="submit" class="w-full border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                    <i data-feather="save" class="text-black"></i>
+                    Save Configuration
+                </button>
+            </div>
+        </section>
+    </form>
+
+    <!-- Folder Include Modal -->
+    <div id="include_path_modal" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="w-1/2 h-fit bg-white rounded-lg p-8">
+            <h2 class="text-2xl text-center">
+                Include Folder
+            </h2>
+
+            <p class="text-center">
+                Go to the folder and copy the folder path from the address bar.
+            </p>
+
+            <div class="flex flex-col gap-y-4 mt-4">
+                <form id="include_folder_form" action="/add-folder" method="POST">
+                    <input type="text" id="folder_input" name="folder_input" class="w-full border-2 border-gray-300 rounded-lg p-2 mb-4" placeholder="Paste Complete Folder Path">
+                    <button type="submit" class="w-full border-2 px-4 py-2 rounded-lg border-black border-solid flex items-center justify-center gap-x-2">
+                        <i data-feather="folder-plus" class="text-black"></i>
+                        Add Folder
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
